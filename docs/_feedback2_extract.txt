@@ -1,0 +1,139 @@
+
+ 
+1. Client & Payment Management (Cash vs. Credit) 
+● Cash/Credit Toggle & Visual Indicators: 
+○ Implement a clear toggle between Cash and Credit account types on customer profiles rather than displaying full labels or long form fields. 
+○ Use visual color coding (e.g., a green indicator for credit clients and a red flag/button for cash clients) to clearly signal payment requirements to staff. 
+Add a filter for credit and cash 
+● Payment Validation Check: 
+○ Add a payment verification check (e.g., "Has payment been made?") for cash clients. 
+○ Restrict job advancement and the rental dispatch process until cash payment is marked as verified. 
+2. Document & Photo Storage 
+● Job Attachment Integration: 
+○ Add file upload and display capabilities directly within individual rental job details. 
+○ Support document and image types required in field operations, including: 
+■ Job photos (pre/post-rental condition) 
+■ Picking slips 
+■ Return notes 
+■ Signed PDF proofs of acceptance / contracts 
+3. Catalog & Category Enhancements 
+● Yard Catalog Category Field: 
+○ Add a mandatory Category field to the Yard Catalog section, positioned between the SKU and Name columns. 
+● Category Options: 
+○ Populate relevant equipment categories fitting the business (e.g., Winches, Hoists, Lifts, Loaders, Compressors, Harnesses). 
+Below is the exact list, delete all the old data and insert the below data as category and product so everywhere when there was a selection of product was done , now category and product both needs to be selected
+Category
+Product
+Hoisting
+Air Hoists
+Hoisting
+Builders Hoist
+Hoisting
+Chain Hoists
+Hoisting
+Chain Hoists – Electric
+Hoisting
+Girder Clamps
+Hoisting
+Girder Trolleys
+Hoisting
+Lever Hoists
+Hoisting
+Riley Clamps
+Hoisting
+Screw Clamps
+Winching
+Air Winch
+Winching
+Man Rider Winch
+Winching
+Tirfor Winches
+Lifting Equipment
+Concrete Lifting Clutches
+Lifting Equipment
+Container Lifting Lugs
+Lifting Equipment
+Edge Lifting Clutches
+Lifting Equipment
+Equalising Triangles
+Lifting Equipment
+Load Ring/VLBG
+Lifting Equipment
+Shackles
+Lifting Equipment
+Shackles – Sling Saver
+Lifting Equipment
+Snatch Blocks
+Man Cages & Rescue Cages
+Single Person Work Cage
+Man Cages & Rescue Cages
+Two Person Work Cage
+Man Cages & Rescue Cages
+Rescue Cage
+Slings
+Chain Sling
+Slings
+Flat Webbing Slings
+Slings
+Round Slings
+Slings
+Wire Rope Slings
+Spreader & Lifting Beams
+End Cap Spreader Beams
+Spreader & Lifting Beams
+Modular Spreader Beams
+Spreader & Lifting Beams
+Specialty Spreader Beams
+Spreader & Lifting Beams
+Lifting Beams
+Spreader & Lifting Beams
+Telescopic Spreader Beams
+Load Skates & Jacks
+Air Skates
+Load Skates & Jacks
+Load Skates
+Load Skates & Jacks
+Toe Jacks
+Load Skates & Jacks
+ToughLift Jacking System
+Load Cells
+Load Cells – Compression
+Load Cells
+Load Cells – Tension
+Load Cells
+Load Cells Shackles
+Load Cells
+Water Load Bags – Seaflex
+Water Bags
+Water Load Bags
+Portable Gantry Cranes
+Gantry Cranes
+Stand/Stools
+Stand/Stools
+Test Weights
+Elevator Test Weights
+Test Weights
+Life Boat Test Kits
+Test Weights
+Steel Test Weights
+Rigging Loft
+Rigging Loft
+4. Quoting & Pricing Workflow 
+● Category-Based Quoting: 
+○ In the Quote Creation screen (under Equipment), add a Category selection field before/alongside the SKU field. 
+○ Allow staff to quote and rent out equipment by category only (e.g., quoting a generic "chain" or "winch") when specific SKUs cannot be determined at initial contact. 
+● Pricing Flexibility & Manual Overrides: 
+○ Automatically display a suggested price based on average or standard rates for the selected category. 
+○ Enable manual price overrides per line item so account managers can apply custom client discounts or adjust rates as needed. 
+5. Sales & Quote View Navigation 
+● Top-Level Quotes Menu: 
+○ Add a dedicated Quotes section under the main Sales menu to provide quick access to all outstanding quotes and high-level status metrics. 
+● Table View & Toggle Switch: 
+○ Develop an alternative Table View for quotes and pipeline management alongside the existing Board/Kanban view. 
+○ Add a toggle switch allowing users to seamlessly flip between Board View and Table View. 
+6. Demo Preparation & Data Cleanup 
+● Remove Non-Relevant Supplier References: 
+○ Remove all references, names, and categories related to Indian businesses/suppliers to align with Australian client and contract anti-outsourcing requirements. 
+● Industry-Relevant Sample Data: 
+○ Replace heavy machinery examples (e.g., excavators) with  realistic, industry-specific equipment examples that match the client’s core hire business (e.g., oil rig winches, hoists, rigging harnesses) which are provided above in category and product table  
+ 

@@ -1,0 +1,5 @@
+-- Phase 2+ domain objects are applied remotely via Supabase MCP.
+-- See README for schema overview. Re-apply carefully on fresh environments.
+-- Tables: clients, equipment_catalog, equipment_assets, orders, order_items,
+-- order_asset_assignments, order_attachments, invoices, invoice_lines
+-- Plus storage bucket rental-evidence.

@@ -1,0 +1,489 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Rigging Rentals MVP â€” User &amp; Demo Guide</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "IBM Plex Sans", Arial, sans-serif;
+      color: #111;
+      font-size: 10.5pt;
+      line-height: 1.45;
+      background: #fff;
+    }
+    h1, h2, h3, h4 {
+      font-family: "Arial Narrow", "Barlow Condensed", "Segoe UI", sans-serif;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.4em;
+      page-break-after: avoid;
+    }
+    h1 { font-size: 26pt; }
+    h2 {
+      font-size: 15pt;
+      border-bottom: 3px solid #f5d400;
+      padding-bottom: 4px;
+      margin-top: 1.4em;
+    }
+    h3 { font-size: 12pt; margin-top: 1em; }
+    h4 { font-size: 11pt; margin-top: 0.8em; color: #333; }
+    p { margin: 0.35em 0 0.6em; }
+    ul, ol { margin: 0.3em 0 0.8em; padding-left: 1.3em; }
+    li { margin: 0.2em 0; }
+    a { color: #111; }
+    .cover {
+      min-height: 240mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      border-top: 8px solid #f5d400;
+      padding-top: 18mm;
+    }
+    .brand-bar {
+      background: #111;
+      color: #f5d400;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-bar img { height: 42px; width: auto; background: #fff; padding: 4px 8px; }
+    .muted { color: #52525b; }
+    .small { font-size: 9pt; }
+    .badge {
+      display: inline-block;
+      background: #f5d400;
+      color: #111;
+      font-weight: 700;
+      font-size: 9pt;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.6em 0 1em;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #d4d4d8;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #111; color: #f5d400; font-weight: 600; }
+    tr:nth-child(even) td { background: #fafafa; }
+    .callout {
+      border: 1px solid #d4d4d8;
+      border-left: 5px solid #f5d400;
+      background: #fafafa;
+      padding: 10px 12px;
+      margin: 0.8em 0;
+      page-break-inside: avoid;
+    }
+    .warn {
+      border-left-color: #b42318;
+      background: #fff5f4;
+    }
+    .step {
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 0.6em 0;
+      page-break-inside: avoid;
+    }
+    .step-num {
+      display: inline-block;
+      background: #111;
+      color: #f5d400;
+      font-weight: 700;
+      width: 1.6em;
+      height: 1.6em;
+      line-height: 1.6em;
+      text-align: center;
+      border-radius: 4px;
+      margin-right: 6px;
+      font-size: 10pt;
+    }
+    .mono { font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; }
+    .toc a { text-decoration: none; }
+    .toc li { margin: 0.35em 0; }
+    .footer-note {
+      margin-top: 2em;
+      padding-top: 0.8em;
+      border-top: 1px solid #d4d4d8;
+      font-size: 8.5pt;
+      color: #71717a;
+    }
+    .role-pill {
+      display: inline-block;
+      background: #111;
+      color: #f5d400;
+      padding: 1px 7px;
+      border-radius: 3px;
+      font-size: 8.5pt;
+      font-weight: 600;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media print {
+      .cover { min-height: auto; }
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <section class="cover">
+    <div>
+      <div class="brand-bar">
+        <img src="logo-rigging-rentals.png" alt="Rigging Rentals" />
+        <div>
+          <div style="font-size: 14pt; font-weight: 700;">Rigging Rentals</div>
+          <div class="small" style="color:#a1a1aa;">Equipment Rental ERP â€” MVP User &amp; Demo Guide</div>
+        </div>
+      </div>
+      <p style="margin-top: 28px;">
+        <span class="badge">Confidential â€” demo pack</span>
+      </p>
+      <h1 style="margin-top: 18px;">How to use the Rigging Rentals MVP</h1>
+      <p class="muted" style="font-size: 12pt; max-width: 38em;">
+        End-to-end walkthrough for demoers and yard staff: logins by role, every major screen,
+        and the full hire path from lead â†’ quote â†’ dispatch â†’ return â†’ invoice.
+      </p>
+      <table style="margin-top: 28px; max-width: 420px;">
+        <tr><th colspan="2">Document info</th></tr>
+        <tr><td>Product</td><td>Rigging Rental MVP (Next.js + Supabase)</td></tr>
+        <tr><td>Trading as</td><td>Rigging Rentals (WA) Pty Ltd</td></tr>
+        <tr><td>Website</td><td>www.riggingrentals.com.au</td></tr>
+        <tr><td>Local app</td><td class="mono">http://localhost:3000</td></tr>
+        <tr><td>Live demo (if deployed)</td><td class="mono">https://rigging-rental-mvp.vercel.app</td></tr>
+        <tr><td>Guide date</td><td>11 August 2026</td></tr>
+      </table>
+    </div>
+    <div class="footer-note">
+      Demo passwords are shared across seed accounts for pitch/training only â€” rotate before any production use.
+      Brand colours: yellow <span class="mono">#F5D400</span> Â· black <span class="mono">#111111</span>.
+    </div>
+  </section>
+
+  <!-- TOC -->
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#overview">1. What this app is</a></li>
+    <li><a href="#logins">2. Demo login details</a></li>
+    <li><a href="#roles">3. Who does what (roles)</a></li>
+    <li><a href="#lifecycle">4. Rental lifecycle at a glance</a></li>
+    <li><a href="#start">5. Getting started (sign-in)</a></li>
+    <li><a href="#e2e">6. Full demo script â€” start to finish</a></li>
+    <li><a href="#screens">7. Screen-by-screen reference</a></li>
+    <li><a href="#tips">8. Pitch tips &amp; common blockers</a></li>
+    <li><a href="#checklist">9. Quick QA checklist</a></li>
+  </ol>
+
+  <h2 id="overview">1. What this app is</h2>
+  <p>
+    A single-tenant equipment rental ERP for <strong>Rigging Rentals</strong> (Kenwick WA).
+    It covers the yard hire path that Point of Rental / Sunbelt-style shops run daily:
+  </p>
+  <ul>
+    <li>Leads &amp; quotes with customer PO</li>
+    <li>Hire T&amp;Cs acceptance + credit checks before confirm</li>
+    <li>Workshop pick / cert check / dispatch</li>
+    <li>Delivery &amp; pickup logistics with proof of delivery (signature)</li>
+    <li>Off-hire, return QC (dirty / damage / missing fees)</li>
+    <li>Finance draft â†’ approve â†’ send â†’ paid, plus Xero CSV export</li>
+    <li>Maintenance work orders and repair bay</li>
+  </ul>
+  <div class="callout">
+    <strong>Best way to demo:</strong> use <span class="role-pill">super_admin</span>
+    (<span class="mono">admin@rigging.demo</span> so you never change accounts mid-walkthrough.
+    Switch to role-specific logins only when you want to prove â€œsales canâ€™t invoiceâ€ / â€œworkshop canâ€™t quoteâ€.
+  </div>
+
+  <h2 id="logins">2. Demo login details</h2>
+  <p>Open <span class="mono">/login</span>. Password is the same for all seed users:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Role</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Lands on</th>
+        <th>Use for</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Super admin</strong></td>
+        <td class="mono">admin@rigging.demo</td>
+        <td class="mono">RiggingDemo1!</td>
+        <td>Ops desk / Yard control</td>
+        <td>Full pitch walkthrough (recommended)</td>
+      </tr>
+      <tr>
+        <td><strong>Sales</strong></td>
+        <td class="mono">sales@rigging.demo</td>
+        <td class="mono">RiggingDemo1!</td>
+        <td>Sales desk</td>
+        <td>Leads, quotes, confirm, off-hire</td>
+      </tr>
+      <tr>
+        <td><strong>Workshop</strong></td>
+        <td class="mono">workshop@rigging.demo</td>
+        <td class="mono">RiggingDemo1!</td>
+        <td>Rental jobs</td>
+        <td>Pick, dispatch, return QC, repairs</td>
+      </tr>
+      <tr>
+        <td><strong>Finance</strong></td>
+        <td class="mono">finance@rigging.demo</td>
+        <td class="mono">RiggingDemo1!</td>
+        <td>Invoice queue</td>
+        <td>Approve, send, paid, Xero CSV</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>Security note:</strong> These are demo/training credentials only.
+    Do not reuse this password on a live customer environment.
+  </div>
+
+  <h2 id="roles">3. Who does what (roles)</h2>
+  <table>
+    <thead>
+      <tr><th>Role</th><th>Owns</th><th>Cannot</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sales</td>
+        <td>Leads, new quote, PO, hire acceptance, confirm, request off-rent, clients</td>
+        <td>Workshop dispatch / return QC / final invoice approve</td>
+      </tr>
+      <tr>
+        <td>Workshop</td>
+        <td>Assign serials, cert checklist, dispatch, return meters &amp; fees, repair WOs</td>
+        <td>Create quotes or approve invoices</td>
+      </tr>
+      <tr>
+        <td>Finance</td>
+        <td>Draft review, discounts, approve, mark paid, Xero export / sync flag</td>
+        <td>Confirm stock or run floor QC</td>
+      </tr>
+      <tr>
+        <td>Super admin</td>
+        <td>Everything above + Ops KPIs, logistics, maintenance, catalog</td>
+        <td>â€”</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="lifecycle">4. Rental lifecycle at a glance</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Stage</th><th>Owner</th><th>App status / place</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Quote + PO</td><td>Sales</td><td><span class="mono">draft</span> Â· Pipeline â†’ Quotes</td></tr>
+      <tr><td>2</td><td>Confirm + hire agreement</td><td>Sales</td><td><span class="mono">confirmed</span> â†’ <span class="mono">pre_pick</span></td></tr>
+      <tr><td>3</td><td>Pack + dispatch</td><td>Workshop</td><td><span class="mono">dispatched</span> Â· Workshop â†’ Pick &amp; dispatch</td></tr>
+      <tr><td>4</td><td>On rent / ePOD</td><td>Logistics</td><td>Logistics board Â· delivery completed with signature</td></tr>
+      <tr><td>5</td><td>Off-hire</td><td>Sales / site</td><td><span class="mono">off_rent_pending</span></td></tr>
+      <tr><td>6</td><td>Return QC</td><td>Workshop</td><td><span class="mono">returned</span> Â· fees / repair WO</td></tr>
+      <tr><td>7</td><td>Invoice</td><td>Finance</td><td><span class="mono">invoiced</span> Â· Billing queue</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="start">5. Getting started (sign-in)</h2>
+  <div class="step">
+    <p><span class="step-num">1</span> Start the app locally with <span class="mono">npm run dev</span>, or open the deployed URL.</p>
+    <p><span class="step-num">2</span> Go to <span class="mono">/login</span>.</p>
+    <p><span class="step-num">3</span> Enter a demo email from Â§2 and password <span class="mono">RiggingDemo1!</span>.</p>
+    <p><span class="step-num">4</span> Click <strong>Sign in</strong>. You are redirected to your role home.</p>
+    <p><span class="step-num">5</span> Use the top black header (yellow hairline) for brand + <strong>Sign out</strong>. Role nav sits under the page title.</p>
+  </div>
+
+  <h2 id="e2e">6. Full demo script â€” start to finish</h2>
+  <p class="muted">
+    ~12â€“15 minutes. Stay on <strong>admin@rigging.demo</strong> unless showing role walls.
+    Seed data already has sample clients, fleet, and open work â€” you can also create a fresh hire as below.
+  </p>
+
+  <h3>A. Capture a lead</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> Nav â†’ <strong>Leads</strong> (<span class="mono">/admin/leads</span>).</p>
+    <p><span class="step-num">2</span> Either fill company / contact / phone / email, <em>or</em> paste a customer enquiry email into the paste box â€” the form autofills.</p>
+    <p><span class="step-num">3</span> Save. Lead appears on the board (filter/sort as needed).</p>
+    <p><span class="step-num">4</span> Optional: convert / link to client, then <strong>Start quote</strong>.</p>
+  </div>
+
+  <h3>B. Create a quote</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> Nav â†’ <strong>New quote</strong> (<span class="mono">/admin/orders/new</span>).</p>
+    <p><span class="step-num">2</span> Choose client, hire start/end, jobsite, delivery address, customer <strong>PO</strong>.</p>
+    <p><span class="step-num">3</span> Add line items (catalog model + qty). Rates pull from catalog.</p>
+    <p><span class="step-num">4</span> Set deposit / fuel surcharge / notes if useful for the story.</p>
+    <p><span class="step-num">5</span> <strong>Save quote (draft)</strong> â†’ you land on <strong>Quotes &amp; orders</strong> pipeline. Card sits in <strong>Quotes</strong>.</p>
+    <p><span class="step-num">6</span> Open the order. Print/view <strong>Quote</strong> document if showing paper trail (logo on print).</p>
+  </div>
+
+  <h3>C. Hire acceptance (required before confirm)</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> On the order detail, find the hire agreement / T&amp;Cs acceptance panel.</p>
+    <p><span class="step-num">2</span> Record who accepted and how (e.g. email reply / phone).</p>
+    <p><span class="step-num">3</span> Confirm you see the accepted state (banner / stamp). <strong>Confirm is blocked until this is done.</strong></p>
+  </div>
+
+  <h3>D. Confirm (locks stock)</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> Ensure PO is on the order and credit is OK (client not On stop / over limit).</p>
+    <p><span class="step-num">2</span> For non-credit customers, use the pay / deposit hold panel before confirm.</p>
+    <p><span class="step-num">3</span> Click <strong>Confirm â†’ lock stock</strong> (pipeline card or order actions).</p>
+    <p><span class="step-num">4</span> Expect: assets reserved, status moves toward workshop (<span class="mono">confirmed</span> / <span class="mono">pre_pick</span>), delivery task created.</p>
+  </div>
+  <div class="callout warn">
+    <strong>Show credit block (optional wow):</strong> Clients â†’ put account <em>On stop</em> â†’ try confirm on another draft â†’ clear CREDIT_HOLD message â†’ lift stop.
+  </div>
+
+  <h3>E. Workshop â€” pick, cert, dispatch</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> Nav â†’ <strong>Workshop</strong> (<span class="mono">/workshop</span>).</p>
+    <p><span class="step-num">2</span> Under <strong>1. Pick &amp; dispatch</strong>, open the job.</p>
+    <p><span class="step-num">3</span> Assign a physical serial per line, enter start meter, tick <strong>cert checklist</strong>.</p>
+    <p><span class="step-num">4</span> Optional: packing weight/minutes, packing slip print, photo evidence.</p>
+    <p><span class="step-num">5</span> Click <strong>Cert + pack + dispatch</strong>. Assets go <span class="mono">on_hire</span>; order <span class="mono">dispatched</span>.</p>
+  </div>
+
+  <h3>F. Logistics â€” proof of delivery</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> Nav â†’ <strong>Logistics</strong> (<span class="mono">/admin/logistics</span>).</p>
+    <p><span class="step-num">2</span> On the delivery task: <strong>En route</strong>.</p>
+    <p><span class="step-num">3</span> Enter who signed / received (required), optional notes.</p>
+    <p><span class="step-num">4</span> <strong>Complete with signature</strong>. Completed column shows signed-by.</p>
+  </div>
+
+  <h3>G. Off-hire</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> From Workshop (on-rent job) click <strong>Log off-rent now</strong>, <em>or</em> request off-rent from sales/order flow.</p>
+    <p><span class="step-num">2</span> Status becomes <span class="mono">off_rent_pending</span>. Pickup task is created for logistics.</p>
+  </div>
+
+  <h3>H. Return QC</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> Workshop â†’ <strong>3. Pickup &amp; return QC</strong>.</p>
+    <p><span class="step-num">2</span> Enter return meter, notes, photos.</p>
+    <p><span class="step-num">3</span> Flag <strong>dirty</strong> / <strong>damaged</strong> / <strong>missing</strong> and fees as needed (opens repair WO when damaged/missing).</p>
+    <p><span class="step-num">4</span> <strong>Finish return check</strong>, then <strong>Mark order returned â†’ Finance</strong>.</p>
+    <p><span class="step-num">5</span> Draft invoice appears for Finance; asset may sit in turnaround / inspection.</p>
+  </div>
+
+  <h3>I. Finance â€” invoice to paid</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> Nav â†’ <strong>Finance</strong> / Billing (<span class="mono">/billing</span>).</p>
+    <p><span class="step-num">2</span> Open the draft. Review hire lines, cleaning/damage/missing, deposit credit, GST.</p>
+    <p><span class="step-num">3</span> <strong>Approve</strong> (order becomes <span class="mono">invoiced</span> on final).</p>
+    <p><span class="step-num">4</span> Send / export document; <strong>mark paid</strong> when demonstrating AR close-out.</p>
+    <p><span class="step-num">5</span> Optional: <strong>Xero CSV</strong> export (<span class="mono">/billing/xero-export</span>) and mark accounting synced.</p>
+  </div>
+
+  <h3>J. Ops desk &amp; maintenance (show yard control)</h3>
+  <div class="step">
+    <p><span class="step-num">1</span> <strong>Ops desk</strong> (<span class="mono">/admin</span>): utilization, fleet donut, pipeline mix, alerts, <strong>Do this next</strong> follow-ups â€” click figures to drill in.</p>
+    <p><span class="step-num">2</span> <strong>Maintenance</strong>: Start an open WO â†’ Complete (asset returns available).</p>
+    <p><span class="step-num">3</span> <strong>Availability</strong>: 14-day grid for overbooking story.</p>
+    <p><span class="step-num">4</span> <strong>Catalog / Clients</strong>: rates, fleet status, credit limit / on-stop flags.</p>
+  </div>
+
+  <h2 id="screens">7. Screen-by-screen reference</h2>
+  <table>
+    <thead>
+      <tr><th>Path</th><th>Screen</th><th>What to do here</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">/login</td><td>Yard sign-in</td><td>Use demo accounts above</td></tr>
+      <tr><td class="mono">/admin</td><td>Ops / Sales desk</td><td>KPIs, follow-ups, jump into exceptions</td></tr>
+      <tr><td class="mono">/admin/leads</td><td>Leads</td><td>Log call/email; paste email autofill; convert</td></tr>
+      <tr><td class="mono">/admin/pipeline</td><td>Quotes &amp; orders</td><td>Kanban, search/filter/sort, confirm drafts</td></tr>
+      <tr><td class="mono">/admin/orders/new</td><td>New quote</td><td>Build draft hire</td></tr>
+      <tr><td class="mono">/admin/orders/[id]</td><td>Order detail</td><td>Acceptance, confirm, docs, logistics links</td></tr>
+      <tr><td class="mono">/admin/orders/[id]/documents/â€¦</td><td>Quote / hire agreement</td><td>Print PDF with brand logo</td></tr>
+      <tr><td class="mono">/admin/availability</td><td>Availability</td><td>14-day free qty by model</td></tr>
+      <tr><td class="mono">/admin/logistics</td><td>Logistics</td><td>Scheduled â†’ en route â†’ POD complete</td></tr>
+      <tr><td class="mono">/admin/maintenance</td><td>Maintenance</td><td>Start / Complete work orders</td></tr>
+      <tr><td class="mono">/admin/clients</td><td>Clients</td><td>CRM, credit, on-stop, history</td></tr>
+      <tr><td class="mono">/admin/catalog</td><td>Catalog / fleet</td><td>Models, assets, cert filters</td></tr>
+      <tr><td class="mono">/workshop</td><td>Rental jobs</td><td>Pick â†’ dispatch â†’ off-rent â†’ return QC</td></tr>
+      <tr><td class="mono">/workshop/repairs</td><td>Repair bay</td><td>Open repair WOs from damage/intake</td></tr>
+      <tr><td class="mono">/workshop/orders/[id]/packing-slip</td><td>Packing slip</td><td>Print for truck</td></tr>
+      <tr><td class="mono">/billing</td><td>Invoice queue</td><td>Approve / send / paid</td></tr>
+      <tr><td class="mono">/billing/xero-export</td><td>Xero CSV</td><td>Export + mark synced</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="tips">8. Pitch tips &amp; common blockers</h2>
+  <div class="two-col">
+    <div class="callout">
+      <strong>Tell this story</strong>
+      <ol>
+        <li>Lead in â†’ quote out (same day)</li>
+        <li>No confirm without T&amp;Cs + credit</li>
+        <li>Serial + cert before it leaves the yard</li>
+        <li>Signature on delivery</li>
+        <li>Dirty/damage money lands on the invoice</li>
+        <li>Finance closes with Xero-ready export</li>
+      </ol>
+    </div>
+    <div class="callout warn">
+      <strong>If something blocks</strong>
+      <ul>
+        <li><em>Confirm blocked</em> â€” missing hire acceptance, On stop, over credit, or unpaid AR</li>
+        <li><em>Dispatch blocked</em> â€” cert not ticked / expired cert (non-admin)</li>
+        <li><em>POD incomplete</em> â€” signer name required</li>
+        <li><em>No draft invoice</em> â€” finish return QC + mark returned</li>
+        <li><em>Invalid UUID (old build)</em> â€” refresh after Zod guid fix for seed IDs</li>
+      </ul>
+    </div>
+  </div>
+  <p>
+    <strong>Not in this MVP (say so up front):</strong> live Xero API, customer self-serve accept link,
+    card payments gateway, multi-branch transfers, telematics, DocuSign.
+    Position as Phase 1 after a successful pilot.
+  </p>
+
+  <h2 id="checklist">9. Quick QA checklist</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Check</th><th>Expect</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Log lead / paste email</td><td>Lead on board</td></tr>
+      <tr><td>2</td><td>New quote</td><td>Draft on Pipeline Quotes</td></tr>
+      <tr><td>3</td><td>Record hire acceptance</td><td>Accepted banner</td></tr>
+      <tr><td>4</td><td>Confirm</td><td>Stock reserved â†’ workshop</td></tr>
+      <tr><td>5</td><td>Credit stop on client</td><td>Confirm blocked</td></tr>
+      <tr><td>6</td><td>Dispatch with cert</td><td>On hire</td></tr>
+      <tr><td>7</td><td>Logistics POD</td><td>Signed-by shown</td></tr>
+      <tr><td>8</td><td>Off-rent</td><td>off_rent_pending</td></tr>
+      <tr><td>9</td><td>Return QC + fees</td><td>Draft invoice / repair WO</td></tr>
+      <tr><td>10</td><td>Approve â†’ paid â†’ Xero CSV</td><td>Order invoiced; sync flag</td></tr>
+      <tr><td>11</td><td>Ops â€œDo this nextâ€</td><td>Follow-ups list</td></tr>
+      <tr><td>12</td><td>Maintenance Start â†’ Complete</td><td>WO completed</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer-note">
+    Rigging Rentals (WA) Pty Ltd Â· ABN 94 105 556 563 Â· 135 Logistics Boulevard, Kenwick WA 6107 Â·
+    1300 774 736 Â· perth@riggingrentals.com.au Â· www.riggingrentals.com.au<br />
+    Auto DB smokes (engineers): <span class="mono">SELECT public.qa_e2e_hire_lifecycle();</span>
+    Â· <span class="mono">SELECT public.qa_e2e_ops_actions();</span>
+  </div>
+
+</body>
+</html>
+

@@ -1,0 +1,2 @@
+-- Whiteboard automation gaps: leads, communications, pack labor, cleaning, AR sent/paid
+-- Applied remotely as rigrent_whiteboard_automation_gaps
