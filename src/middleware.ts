@@ -38,6 +38,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Super Admin is front-end only for now (mock API, no sign-in): skip Supabase entirely.
+  if (pathname === "/super-admin" || pathname.startsWith("/super-admin/")) {
+    return NextResponse.next();
+  }
+
   const { supabase, getResponse } = createMiddlewareClient(request);
   const {
     data: { user },
