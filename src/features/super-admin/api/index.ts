@@ -1,19 +1,32 @@
 import "server-only";
 import type { SuperAdminApi } from "@/features/super-admin/api/contract";
-import { riggRentalSuperAdminApi } from "@/features/super-admin/api/http/rigg-rental-api";
+import { dashboardApi } from "@/features/super-admin/api/http/dashboard";
+import { notificationsApi } from "@/features/super-admin/api/http/notifications";
+import { organizationsApi } from "@/features/super-admin/api/http/organizations";
+import { parametersApi } from "@/features/super-admin/api/http/parameters";
+import { privilegesApi } from "@/features/super-admin/api/http/privileges";
+import { profileApi } from "@/features/super-admin/api/http/profile";
+import { mockNotificationsApi } from "@/features/super-admin/api/mock/notifications";
 
 /**
  * The only way pages and Server Actions reach Super Admin data.
  *
- * Backed by the real Rigg Rental Spring Boot API (RIGG_RENTAL_API_URL) for
- * Organizations and Privileges, including those two counts on the dashboard.
- * Parameters, notifications, and profile/MFA still fall back to mock data,
- * and the dashboard's service, override, and email tiles stay mock with
- * them — see src/features/super-admin/api/http/rigg-rental-api.ts.
+ * Real methods call the Rigg Rental Spring Boot API (RIGG_RENTAL_API_URL)
+ * as the signed-in Super Admin. Notification emails have no backend yet and
+ * come from mock/ — the real modules are spread after it, so a real method
+ * always wins. Search for `TODO(backend)` to see what's still pending.
  *
  * Server-side only: never import this from a Client Component.
  */
-export const superAdminApi: SuperAdminApi = riggRentalSuperAdminApi;
+export const superAdminApi: SuperAdminApi = {
+  ...mockNotificationsApi, // TODO(backend): Notifications domain
+  ...dashboardApi,
+  ...organizationsApi,
+  ...privilegesApi,
+  ...parametersApi,
+  ...notificationsApi,
+  ...profileApi,
+};
 
-export { ApiError } from "@/features/super-admin/api/contract";
+export { ApiError, isApiError } from "@/features/super-admin/api/contract";
 export type { SuperAdminApi } from "@/features/super-admin/api/contract";

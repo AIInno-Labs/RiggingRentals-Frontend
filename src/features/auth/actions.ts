@@ -6,8 +6,16 @@ import { createClient } from "@/lib/supabase/server";
 import { loginSchema } from "@/features/auth/schemas";
 import { fetchProfileViaRpc } from "@/features/rbac/fetch-profile";
 import { homePathForRole } from "@/features/rbac/route-access";
+import { signInSuperAdmin } from "@/features/super-admin/auth/sign-in";
+import { SUPER_ADMIN_BASE } from "@/features/super-admin/constants/routes";
 import { fail, ok, type ActionResult } from "@/lib/actions/result";
 
+/**
+ * One login page for everyone:
+ *  1. the platform Super Admin is checked against the Rigg Rental backend
+ *     (POST /auth/authenticate) and lands on /super-admin;
+ *  2. everyone else signs in with Supabase as before.
+ */
 export async function loginAction(
   input: unknown,
 ): Promise<ActionResult<{ redirectTo: string }>> {
@@ -17,6 +25,14 @@ export async function loginAction(
       "VALIDATION_ERROR",
       parsed.error.issues[0]?.message ?? "Invalid input",
     );
+  }
+
+  const superAdmin = await signInSuperAdmin(
+    parsed.data.email,
+    parsed.data.password,
+  );
+  if (superAdmin.status === "signed-in") {
+    return ok({ redirectTo: SUPER_ADMIN_BASE });
   }
 
   const supabase = await createClient();

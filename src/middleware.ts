@@ -6,6 +6,7 @@ import {
   homePathForRole,
 } from "@/features/rbac/route-access";
 import { isAppRole, type AppRole } from "@/features/rbac/types";
+import { SA_SESSION_COOKIE, isTokenFresh } from "@/features/super-admin/auth/session-cookie";
 
 const PUBLIC_PATHS = new Set(["/login", "/unauthorized"]);
 const ROLE_COOKIE = "rr_role";
@@ -38,13 +39,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Super Admin is front-end only for now (no sign-in of its own): skip Supabase
-  // entirely, including its own API routes (e.g. /api/super-admin/token).
-  if (
-    pathname === "/super-admin" ||
-    pathname.startsWith("/super-admin/") ||
-    pathname.startsWith("/api/super-admin/")
-  ) {
+  // Super Admin signs in on the shared /login page against the Rigg Rental
+  // backend (not Supabase); its session is the backend JWT cookie.
+  if (pathname === "/super-admin" || pathname.startsWith("/super-admin/")) {
+    const token = request.cookies.get(SA_SESSION_COOKIE)?.value;
+    if (token && isTokenFresh(token)) return NextResponse.next();
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("next", pathname);
+    const res = NextResponse.redirect(url);
+    if (token) res.cookies.delete(SA_SESSION_COOKIE);
+    return res;
+  }
+  // Its Route Handlers check the session themselves (sign-out must work without one).
+  if (pathname.startsWith("/api/super-admin/")) {
     return NextResponse.next();
   }
 

@@ -62,7 +62,7 @@ export function LoginForm() {
             required
             disabled={pending}
             className="h-10 bg-white/70"
-            defaultValue="admin@rigging.demo"
+            defaultValue="superadmin@rigg-rental.local"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -75,7 +75,7 @@ export function LoginForm() {
             required
             disabled={pending}
             className="h-10 bg-white/70"
-            defaultValue="RiggingDemo1!"
+            defaultValue="superadmin123"
           />
         </div>
         {error ? (

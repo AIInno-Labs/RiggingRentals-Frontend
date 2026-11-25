@@ -79,9 +79,8 @@ export function SuperAdminShell({ userName, badges, children }: { userName: stri
           <p className="truncate px-2 text-sm font-medium">{userName}</p>
           <p className="mb-2 truncate px-2 text-xs text-zinc-400">{COPY.shell.roleLine}</p>
           <Button asChild size="sm" className={cn("w-full", darkOutline)}>
-            <Link href={SIGN_OUT_HREF} prefetch={false}>
-              {COPY.shell.signOut}
-            </Link>
+            {/* Plain <a>: sign-out is a Route Handler, not a page. */}
+            <a href={SIGN_OUT_HREF}>{COPY.shell.signOut}</a>
           </Button>
         </div>
       </aside>
@@ -99,9 +98,7 @@ export function SuperAdminShell({ userName, badges, children }: { userName: stri
               <Link href={`${SA_ROUTES.organizations}?${QUERY.create}=1`}>{COPY.shell.addOrganization}</Link>
             </Button>
             <Button asChild size="sm" className={cn("md:hidden", darkOutline)}>
-              <Link href={SIGN_OUT_HREF} prefetch={false}>
-                {COPY.shell.signOutShort}
-              </Link>
+              <a href={SIGN_OUT_HREF}>{COPY.shell.signOutShort}</a>
             </Button>
           </div>
         </header>

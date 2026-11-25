@@ -9,8 +9,8 @@ export const SA_ROUTES = {
   profile: `${SUPER_ADMIN_BASE}/profile`,
 } as const;
 
-/** Where "Sign out" goes until the backend provides a Super Admin session. */
-export const SIGN_OUT_HREF = "/login";
+/** Ends the Super Admin session (app/api/super-admin/sign-out/route.ts). */
+export const SIGN_OUT_HREF = "/api/super-admin/sign-out";
 
 /** Query-string keys shared by pages, links and filters. */
 export const QUERY = {
