@@ -46,6 +46,17 @@ function findOrganization(id: string): Organization {
   return found;
 }
 
+/**
+ * Parameters and emails are stored by organization id, but that id does not
+ * have to be one of the seeded mock organizations. The org picker is backed
+ * by the real API (ids like "1"); this store only holds overrides. An id
+ * this seed doesn't know is a valid scope that inherits platform values
+ * until someone sets its own. Organization CRUD still uses findOrganization.
+ */
+function seededOrganization(id: string): Organization | undefined {
+  return db().organizations.find((o) => o.id === id);
+}
+
 function findTemplate(id: string): EmailTemplateRecord {
   const found = db().emailTemplates.find((t) => t.id === id);
   if (!found) throw new ApiError("NOT_FOUND", "That email no longer exists.", 404);
@@ -315,7 +326,6 @@ const baseMockApi: SuperAdminApi = {
   async getParameters(scope = {}) {
     await sleep(LATENCY_MS);
     const orgId = scope.organizationId;
-    if (orgId) findOrganization(orgId);
     const missing = new Set(missingKeys(orgId));
     return db().parameterGroups.map((g): ParameterGroupView => ({
       id: g.id,
@@ -345,7 +355,6 @@ const baseMockApi: SuperAdminApi = {
     await sleep(LATENCY_MS);
     const def = definitionFor(key);
     const orgId = scope.organizationId;
-    if (orgId) findOrganization(orgId);
     const value = parseParameter(def, rawValue, paramValue(key, orgId));
     if (!orgId) {
       db().platformParameters[key] = value;
@@ -371,7 +380,8 @@ const baseMockApi: SuperAdminApi = {
     const group = db().parameterGroups.find((g) => g.id === groupId);
     if (!group) throw new ApiError("NOT_FOUND", "That service no longer exists.", 404);
     const orgId = scope.organizationId;
-    const who = orgId ? ` for ${findOrganization(orgId).name}` : "";
+    const named = orgId ? seededOrganization(orgId) : undefined;
+    const who = named ? ` for ${named.name}` : "";
     if (!paramValue(group.items[0].key, orgId)) return { ok: false, message: `${group.name} is off${who}. Turn it on first.` };
     const missing = new Set(missingKeys(orgId));
     const labels = group.items.filter((i) => missing.has(i.key)).map((i) => i.label);
@@ -383,7 +393,6 @@ const baseMockApi: SuperAdminApi = {
 
   async listEmailTemplates(scope = {}) {
     await sleep(LATENCY_MS);
-    if (scope.organizationId) findOrganization(scope.organizationId);
     return db().emailTemplates.map((t) => effectiveTemplate(t, scope.organizationId));
   },
 
@@ -402,7 +411,6 @@ const baseMockApi: SuperAdminApi = {
       ...(base.modeSelectable && input.mode ? { mode: input.mode } : {}),
     };
     if (orgId) {
-      findOrganization(orgId);
       saveEmailOverride(orgId, id, patch);
       return;
     }
@@ -416,7 +424,6 @@ const baseMockApi: SuperAdminApi = {
     await sleep(LATENCY_MS);
     const base = findTemplate(id);
     if (scope.organizationId) {
-      findOrganization(scope.organizationId);
       saveEmailOverride(scope.organizationId, id, { enabled });
     } else {
       base.enabled = enabled;
@@ -440,7 +447,10 @@ const baseMockApi: SuperAdminApi = {
 
   async getEmailPreviewContext(scope = {}) {
     const orgId = scope.organizationId;
-    const o = orgId ? findOrganization(orgId) : db().organizations.find((x) => x.active) ?? db().organizations[0];
+    // Real org ids aren't in this seed. Leave the merge fields blank; the
+    // Rigg Rental adapter fills them from the backend organization.
+    const seeded = orgId ? seededOrganization(orgId) : db().organizations.find((x) => x.active) ?? db().organizations[0];
+    const o = seeded ?? { name: "", code: "", address: "", phone: "", email: "" };
     return {
       fromName: String(paramValue("EMAIL_FROM_NAME", orgId) ?? ""),
       fromAddress: String(paramValue("EMAIL_FROM_ADDRESS", orgId) ?? ""),

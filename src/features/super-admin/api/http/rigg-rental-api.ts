@@ -29,9 +29,10 @@ import type {
 /**
  * Real implementation for Organizations and Privileges, backed by the Rigg
  * Rental Spring Boot API (see /Users/avinash/Desktop/Avinash/BMS/Rigg-Rental-Backend).
- * Everything else (dashboard, parameters, notifications, profile/MFA) has no
- * backend counterpart yet, so those methods delegate to the mock API — see
- * the `...mockSuperAdminApi` spread at the bottom.
+ * The dashboard still starts from the mock summary, then replaces the
+ * organization and privilege counts with these real lists. Parameters,
+ * notifications, and profile/MFA have no backend counterpart yet, so those
+ * methods stay on the mock API — see the `...mockSuperAdminApi` spread.
  *
  * Switch on with:
  *   SUPER_ADMIN_API_MODE=rigg-rental
@@ -260,10 +261,66 @@ const privilegesApi: Pick<SuperAdminApi, "listPrivileges" | "createPrivilege" | 
   },
 };
 
+// ------------------------------------------------------------- dashboard
+
+const dashboardApi: Pick<SuperAdminApi, "getDashboardSummary"> = {
+  async getDashboardSummary() {
+    // services/parameterOverrides/missingParameters/emails have no backend
+    // domain yet (see the gaps note above) — keep those from the mock, but
+    // organizations/privileges are real, so don't show fake counts for them.
+    const [mock, organizations, privileges] = await Promise.all([
+      mockSuperAdminApi.getDashboardSummary(),
+      listOrganizationSummaries(),
+      fetchAllPrivileges(),
+    ]);
+    const activePrivileges = privileges.filter((p) => p.active).length;
+    return {
+      ...mock,
+      organizations: {
+        active: organizations.length, // backend has no deactivate flag yet — every organization reads as active
+        inactive: 0,
+        total: organizations.length,
+      },
+      privileges: { active: activePrivileges, inactive: privileges.length - activePrivileges },
+    };
+  },
+};
+
+// ------------------------------------------------------------- notifications
+
+/**
+ * Email bodies are still mock, but the preview merge fields (company name,
+ * code, address) should be the organization the user actually picked.
+ */
+const notificationsApi: Pick<SuperAdminApi, "getEmailPreviewContext"> = {
+  async getEmailPreviewContext(scope = {}) {
+    const context = await mockSuperAdminApi.getEmailPreviewContext(scope);
+    const id = scope.organizationId;
+    if (!id) return context;
+    try {
+      const org = await request<BackendOrganization>("GET", `/organizations/${encodeURIComponent(id)}`);
+      return {
+        ...context,
+        organization: {
+          name: org.companyName,
+          code: org.companyCode,
+          address: org.address ?? "",
+          phone: org.phone ?? org.mobileNumber ?? "",
+          email: org.email ?? "",
+        },
+      };
+    } catch {
+      return context;
+    }
+  },
+};
+
 // --------------------------------------------------------------- export
 
 export const riggRentalSuperAdminApi: SuperAdminApi = {
-  ...mockSuperAdminApi, // dashboard, parameters, notifications, profile/MFA — not built on the backend yet
+  ...mockSuperAdminApi, // parameters, notifications, profile/MFA — not built on the backend yet
+  ...dashboardApi,
   ...organizationsApi,
   ...privilegesApi,
+  ...notificationsApi,
 };
