@@ -1,7 +1,18 @@
 import { ApiError, type ApiErrorCode, type SuperAdminApi } from "@/features/super-admin/api/contract";
 import { mockSuperAdminApi } from "@/features/super-admin/api/mock/mock-api";
+import { getServiceToken } from "@/features/super-admin/api/service-token";
+import {
+  type BackendOrganization,
+  type BackendOrganizationAdmin,
+  type BackendPrivilege,
+  type BackendProvisionResponse,
+  LIST_PAGE_SIZE,
+  matchesQuery,
+  matchesStatus,
+  toPrivilege,
+  toSummary,
+} from "@/features/super-admin/api/rigg-rental-shared";
 import type {
-  AustralianState,
   CreateOrganizationInput,
   CreatePrivilegeInput,
   OrganizationDetail,
@@ -9,11 +20,9 @@ import type {
   OrganizationInput,
   OrganizationOption,
   OrganizationSummary,
-  Privilege,
   PrivilegeFilters,
   PrivilegeList,
   PrivilegeType,
-  StatusFilter,
   UpdatePrivilegeInput,
 } from "@/features/super-admin/types";
 
@@ -49,41 +58,9 @@ function apiUrl(): string {
 }
 
 // ---------------------------------------------------------------- auth
-// No real per-admin sign-in exists yet for this panel (same as the mock API
-// today — see docs/super-admin-api-contract.md: "Authentication isn't wired
-// yet"). This logs in once, server-side, as the seeded platform Super Admin
-// and reuses the token until it's close to expiring.
-
-let cachedToken: { value: string; expiresAt: number } | null = null;
-
-async function fetchServiceToken(): Promise<string> {
-  const email = process.env.RIGG_RENTAL_SUPERADMIN_EMAIL ?? "superadmin@rigg-rental.local";
-  const password = process.env.RIGG_RENTAL_SUPERADMIN_PASSWORD ?? "superadmin123";
-
-  let res: Response;
-  try {
-    res = await fetch(`${apiUrl()}/auth/authenticate`, {
-      method: "POST",
-      cache: "no-store",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-  } catch {
-    throw new ApiError("UNAVAILABLE", "The Rigg Rental API can't be reached.", 503);
-  }
-  if (!res.ok) {
-    throw new ApiError("UNAVAILABLE", "Could not sign in to the Rigg Rental API as Super Admin.", 503);
-  }
-  const body = (await res.json()) as { token: string; expiresIn: number };
-  cachedToken = { value: body.token, expiresAt: Date.now() + body.expiresIn - 60_000 };
-  return body.token;
-}
 
 async function authHeader(forceRefresh = false): Promise<Record<string, string>> {
-  if (forceRefresh || !cachedToken || Date.now() >= cachedToken.expiresAt) {
-    await fetchServiceToken();
-  }
-  return { Authorization: `Bearer ${cachedToken!.value}` };
+  return { Authorization: `Bearer ${await getServiceToken(forceRefresh)}` };
 }
 
 // -------------------------------------------------------------- request
@@ -135,34 +112,6 @@ async function request<T>(method: string, path: string, options: { query?: Query
 
 // --------------------------------------------------------- organizations
 
-type BackendOrganization = {
-  id: number;
-  companyName: string;
-  companyCode: string;
-  address: string | null;
-  city: string | null;
-  country: string | null;
-  postalCode: string | null;
-  phone: string | null;
-  mobileNumber: string | null;
-  email: string | null;
-  currency: string | null;
-  createdAt: string | null;
-};
-
-type BackendOrganizationAdmin = { name: string | null; email: string | null; phone: string | null };
-
-type BackendProvisionResponse = { organization: BackendOrganization; adminUsername: string };
-
-/** Backend has no `state` column yet — this project operates out of WA, used as the fixed default. */
-const DEFAULT_STATE: AustralianState = "WA";
-
-const LIST_PAGE_SIZE = 200; // no pagination UI yet; large enough to mean "all" at this scale
-
-function toDate(value: string | null): string {
-  return value ? value.slice(0, 10) : new Date().toISOString().slice(0, 10);
-}
-
 async function fetchAdmin(id: number): Promise<BackendOrganizationAdmin> {
   try {
     return await request<BackendOrganizationAdmin>("GET", `/organizations/${id}/admin`);
@@ -171,35 +120,6 @@ async function fetchAdmin(id: number): Promise<BackendOrganizationAdmin> {
     // this panel's own create flow, but don't let the whole page 500 over it).
     return { name: null, email: null, phone: null };
   }
-}
-
-function toSummary(org: BackendOrganization, admin: BackendOrganizationAdmin): OrganizationSummary {
-  return {
-    id: String(org.id),
-    code: org.companyCode,
-    name: org.companyName,
-    state: DEFAULT_STATE,
-    address: org.address ?? "",
-    phone: org.phone ?? org.mobileNumber ?? "",
-    email: org.email ?? "",
-    active: true, // backend has no deactivate flag yet — every organization reads as active
-    createdAt: toDate(org.createdAt),
-    admin: { name: admin.name ?? "", email: admin.email ?? "", phone: admin.phone ?? "" },
-    parameterOverrideCount: 0, // no Parameters domain on the backend yet
-    customEmailCount: 0, // no Notifications domain on the backend yet
-  };
-}
-
-function matchesQuery(org: OrganizationSummary, q: string): boolean {
-  const needle = q.trim().toLowerCase();
-  if (!needle) return true;
-  return [org.name, org.code, org.state, org.address, org.admin.name, org.admin.email]
-    .some((field) => field.toLowerCase().includes(needle));
-}
-
-function matchesStatus(org: OrganizationSummary, status: StatusFilter | undefined): boolean {
-  if (!status || status === "all") return true;
-  return status === "active" ? org.active : !org.active;
 }
 
 async function listOrganizationSummaries(): Promise<OrganizationSummary[]> {
@@ -287,28 +207,6 @@ const organizationsApi: Pick<
 };
 
 // ------------------------------------------------------------ privileges
-
-type BackendPrivilege = {
-  id: number;
-  privilege: string;
-  privilegeCode: string;
-  privilegeType: PrivilegeType;
-  domain: string | null;
-  active: boolean;
-  createdAt: string | null;
-};
-
-function toPrivilege(p: BackendPrivilege): Privilege {
-  return {
-    code: p.privilegeCode,
-    label: p.privilege,
-    type: p.privilegeType,
-    area: p.domain ?? "",
-    description: "", // no backend field
-    active: p.active,
-    createdAt: toDate(p.createdAt),
-  };
-}
 
 async function fetchAllPrivileges(): Promise<BackendPrivilege[]> {
   return request<BackendPrivilege[]>("GET", "/privileges");

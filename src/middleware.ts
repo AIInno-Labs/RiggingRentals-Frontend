@@ -38,8 +38,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Super Admin is front-end only for now (mock API, no sign-in): skip Supabase entirely.
-  if (pathname === "/super-admin" || pathname.startsWith("/super-admin/")) {
+  // Super Admin is front-end only for now (no sign-in of its own): skip Supabase
+  // entirely, including its own API routes (e.g. /api/super-admin/token).
+  if (
+    pathname === "/super-admin" ||
+    pathname.startsWith("/super-admin/") ||
+    pathname.startsWith("/api/super-admin/")
+  ) {
     return NextResponse.next();
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ActiveBadge, ToneBadge } from "@/features/super-admin/components/common/badges";
@@ -8,10 +8,11 @@ import { ClickableRow } from "@/features/super-admin/components/common/clickable
 import { EmptyState, PageHeader, Panel, PanelHeader, StackedCell } from "@/features/super-admin/components/common/layout-parts";
 import { UrlSearchInput, UrlStatusSelect, useUrlParams } from "@/features/super-admin/components/common/url-filters";
 import { useOrganizationControls } from "@/features/super-admin/components/organizations/use-organization-controls";
+import { listOrganizationsDirect } from "@/features/super-admin/api/client/browser-api";
 import { COPY } from "@/features/super-admin/constants/copy";
 import { STATE_TIME_ZONES } from "@/features/super-admin/constants/domain";
 import { QUERY } from "@/features/super-admin/constants/routes";
-import type { OrganizationSummary } from "@/features/super-admin/types";
+import type { OrganizationFilters, OrganizationSummary } from "@/features/super-admin/types";
 
 const T = COPY.organizations;
 
@@ -20,14 +21,18 @@ export function OrganizationsTable({
   organizations,
   total,
   openCreateOnLoad,
+  filters,
 }: {
   organizations: OrganizationSummary[];
   total: number;
   /** Set when arriving from the header's "Add organization" button. */
   openCreateOnLoad: boolean;
+  /** Re-fetched client-side on mount so the call is visible in DevTools — see browser-api.ts. */
+  filters: OrganizationFilters;
 }) {
   const controls = useOrganizationControls();
   const { update } = useUrlParams();
+  const [rows, setRows] = useState(organizations);
 
   // Open the create dialog once, then drop ?new=1 so a refresh doesn't reopen it.
   useEffect(() => {
@@ -37,11 +42,25 @@ export function OrganizationsTable({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openCreateOnLoad]);
 
+  // The page above already fetched this server-side for first paint (and
+  // again after any mutation, via revalidatePath — that's what updates the
+  // `organizations` prop). This re-fetches the same data directly from the
+  // browser to the Rigg Rental backend on top of that, purely so the call is
+  // visible in the Network tab — see browser-api.ts. `organizations` stays
+  // the baseline in case the direct fetch fails.
+  useEffect(() => {
+    setRows(organizations);
+    listOrganizationsDirect(filters)
+      .then(setRows)
+      .catch((err) => console.error("[super-admin] direct organizations fetch failed", err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organizations, filters.q, filters.status]);
+
   return (
     <>
       <PageHeader title={T.title} description={T.description} actions={<Button onClick={controls.openCreate}>{T.create}</Button>} />
       <Panel>
-        <PanelHeader actions={<span className="self-center text-[12.5px] text-muted-foreground">{COPY.common.showing(organizations.length, total)}</span>}>
+        <PanelHeader actions={<span className="self-center text-[12.5px] text-muted-foreground">{COPY.common.showing(rows.length, total)}</span>}>
           <div className="flex flex-wrap items-center gap-2">
             <UrlSearchInput placeholder={T.searchPlaceholder} ariaLabel={T.searchLabel} />
             <UrlStatusSelect />
@@ -60,8 +79,8 @@ export function OrganizationsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {organizations.length ? (
-                organizations.map((o) => (
+              {rows.length ? (
+                rows.map((o) => (
                   <ClickableRow key={o.id} onOpen={() => controls.openDetails(o.id)} dimmed={!o.active} label={`${COPY.common.open} ${o.name}`}>
                     <TableCell>
                       <ToneBadge tone="dark">{o.code}</ToneBadge>

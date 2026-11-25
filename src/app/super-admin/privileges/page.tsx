@@ -6,6 +6,7 @@ import { firstParam, parsePrivilegeType, parseStatus } from "@/features/super-ad
 export default async function PrivilegesPage({ searchParams }: PageProps<"/super-admin/privileges">) {
   const sp = await searchParams;
   const type = parsePrivilegeType(sp);
-  const list = await superAdminApi.listPrivileges({ q: firstParam(sp, QUERY.search), type, status: parseStatus(sp) });
-  return <PrivilegesTable list={list} type={type} />;
+  const filters = { q: firstParam(sp, QUERY.search), type, status: parseStatus(sp) };
+  const list = await superAdminApi.listPrivileges(filters);
+  return <PrivilegesTable list={list} type={type} filters={filters} />;
 }

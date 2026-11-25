@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,19 +12,43 @@ import { ConfirmDialog, SidePanel } from "@/features/super-admin/components/comm
 import { UrlSearchInput, UrlStatusSelect, useUrlParams } from "@/features/super-admin/components/common/url-filters";
 import { PrivilegeFormDialog } from "@/features/super-admin/components/privileges/privilege-form-dialog";
 import { setPrivilegeActiveAction } from "@/features/super-admin/actions/privileges";
+import { listPrivilegesDirect } from "@/features/super-admin/api/client/browser-api";
 import { COPY } from "@/features/super-admin/constants/copy";
 import { PRIVILEGE_TYPES, PRIVILEGE_TYPE_ORDER } from "@/features/super-admin/constants/domain";
 import { QUERY } from "@/features/super-admin/constants/routes";
-import type { Privilege, PrivilegeList, PrivilegeType } from "@/features/super-admin/types";
+import type { Privilege, PrivilegeFilters, PrivilegeList, PrivilegeType } from "@/features/super-admin/types";
 
 const T = COPY.privileges;
 
-export function PrivilegesTable({ list, type }: { list: PrivilegeList; type: PrivilegeType | "all" }) {
+export function PrivilegesTable({
+  list: initialList,
+  type,
+  filters,
+}: {
+  list: PrivilegeList;
+  type: PrivilegeType | "all";
+  /** Re-fetched client-side on mount so the call is visible in DevTools — see browser-api.ts. */
+  filters: PrivilegeFilters;
+}) {
   const { update } = useUrlParams();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [form, setForm] = useState<{ open: boolean; privilege?: Privilege; key: number }>({ open: false, key: 0 });
   const [confirming, setConfirming] = useState<Privilege | null>(null);
   const [pending, startTransition] = useTransition();
+  const [list, setList] = useState(initialList);
+
+  // The page above already fetched this server-side for first paint (and
+  // again after any mutation, via revalidatePath — that's what updates
+  // `initialList`). This re-fetches the same data directly from the browser
+  // to the Rigg Rental backend on top of that, purely so the call is visible
+  // in the Network tab — see browser-api.ts.
+  useEffect(() => {
+    setList(initialList);
+    listPrivilegesDirect(filters)
+      .then(setList)
+      .catch((err) => console.error("[super-admin] direct privileges fetch failed", err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialList, filters.q, filters.type, filters.status]);
 
   // Read from the latest list so the panel reflects saved changes.
   const selected = list.items.find((p) => p.code === selectedCode) ?? null;

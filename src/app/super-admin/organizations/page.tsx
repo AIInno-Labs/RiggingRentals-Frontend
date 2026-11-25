@@ -5,11 +5,17 @@ import { firstParam, parseStatus } from "@/features/super-admin/lib/search-param
 
 export default async function OrganizationsPage({ searchParams }: PageProps<"/super-admin/organizations">) {
   const sp = await searchParams;
+  const filters = { q: firstParam(sp, QUERY.search), status: parseStatus(sp) };
   const [organizations, options] = await Promise.all([
-    superAdminApi.listOrganizations({ q: firstParam(sp, QUERY.search), status: parseStatus(sp) }),
+    superAdminApi.listOrganizations(filters),
     superAdminApi.listOrganizationOptions(),
   ]);
   return (
-    <OrganizationsTable organizations={organizations} total={options.length} openCreateOnLoad={firstParam(sp, QUERY.create) === "1"} />
+    <OrganizationsTable
+      organizations={organizations}
+      total={options.length}
+      openCreateOnLoad={firstParam(sp, QUERY.create) === "1"}
+      filters={filters}
+    />
   );
 }
