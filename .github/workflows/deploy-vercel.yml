@@ -16,8 +16,12 @@
 #     RESEND_FROM_EMAIL                 — optional
 #     SUPER_ADMIN_API_MODE              — mock | rigg-rental (should be rigg-rental for a real deploy)
 #     RIGG_RENTAL_API_URL               — only used when mode=rigg-rental
-#     RIGG_RENTAL_SUPERADMIN_EMAIL      — only used when mode=rigg-rental
-#     RIGG_RENTAL_SUPERADMIN_PASSWORD   — only used when mode=rigg-rental
+#
+# RIGG_RENTAL_SUPERADMIN_EMAIL/PASSWORD are deliberately not set here — the
+# rigg-rental adapter falls back to the backend's seeded default credentials
+# (superadmin@rigg-rental.local / superadmin123) when they're absent. Add
+# them as secrets (and reference below) if the deployed backend's Super
+# Admin password is ever changed from that default.
 #
 # These are passed directly into `vercel build` below rather than configured
 # in the Vercel dashboard, so everything this deploy needs lives in one place
@@ -70,8 +74,6 @@ jobs:
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
           SUPER_ADMIN_API_MODE: ${{ secrets.SUPER_ADMIN_API_MODE }}
           RIGG_RENTAL_API_URL: ${{ secrets.RIGG_RENTAL_API_URL }}
-          RIGG_RENTAL_SUPERADMIN_EMAIL: ${{ secrets.RIGG_RENTAL_SUPERADMIN_EMAIL }}
-          RIGG_RENTAL_SUPERADMIN_PASSWORD: ${{ secrets.RIGG_RENTAL_SUPERADMIN_PASSWORD }}
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy
