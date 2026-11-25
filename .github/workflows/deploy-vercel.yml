@@ -21,13 +21,18 @@
 # RIGG_RENTAL_SUPERADMIN_EMAIL/PASSWORD are deliberately not set here — the
 # rigg-rental adapter falls back to the backend's seeded default credentials
 # (superadmin@rigg-rental.local / superadmin123) when they're absent. Add
-# them as secrets (and reference below) if the deployed backend's Super
-# Admin password is ever changed from that default.
+# them as secrets (and sync below) if the deployed backend's Super Admin
+# password is ever changed from that default.
 #
-# These are passed directly into `vercel build` below rather than configured
-# in the Vercel dashboard, so everything this deploy needs lives in one place
-# (GitHub secrets) and is visible in this file. The tradeoff: a `vercel
-# deploy` run from someone's laptop, outside this workflow, won't see them.
+# These are synced INTO Vercel's own Environment Variables (production) on
+# every run, rather than only passed to the `vercel build` shell step.
+# That's not optional: Vercel's Build Output API keeps build-time shell env
+# separate from a deployed function's runtime env — a var only exported for
+# `vercel build` bakes into NEXT_PUBLIC_* client code but is NOT available to
+# the function at request time. Registering it as a real Vercel env var
+# (what `vercel env add` does) is the only way server-only vars reach the
+# deployed function at runtime. GitHub secrets stay the source of truth;
+# this just keeps Vercel's copy in sync on each deploy.
 name: Deploy to Vercel
 
 on:
@@ -60,13 +65,11 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # Links this checkout to the Vercel project (writes .vercel/project.json)
-      # and fetches build settings — not app secrets, those come from GitHub
-      # below instead.
-      - name: Link Vercel project
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-
-      - name: Build
+      # Overwrites each var in Vercel's "production" environment with the
+      # current GitHub secret value. `env rm` is allowed to fail (var may not
+      # exist yet, e.g. the optional ones); `env add` reads the value from
+      # stdin so it's never shown in the command line/logs.
+      - name: Sync app env vars to Vercel
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -75,6 +78,32 @@ jobs:
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
           RIGG_RENTAL_API_URL: ${{ secrets.RIGG_RENTAL_API_URL }}
           NEXT_PUBLIC_RIGG_RENTAL_API_URL: ${{ secrets.NEXT_PUBLIC_RIGG_RENTAL_API_URL }}
+        run: |
+          sync_var() {
+            local name="$1"
+            local value="${!name}"
+            if [ -z "${value}" ]; then
+              echo "Skipping ${name} (no GitHub secret set)"
+              return
+            fi
+            vercel env rm "${name}" production --yes --token="$VERCEL_TOKEN" >/dev/null 2>&1 || true
+            printf '%s' "${value}" | vercel env add "${name}" production --token="$VERCEL_TOKEN" >/dev/null
+            echo "Synced ${name}"
+          }
+          sync_var NEXT_PUBLIC_SUPABASE_URL
+          sync_var NEXT_PUBLIC_SUPABASE_ANON_KEY
+          sync_var NEXT_PUBLIC_APP_URL
+          sync_var RESEND_API_KEY
+          sync_var RESEND_FROM_EMAIL
+          sync_var RIGG_RENTAL_API_URL
+          sync_var NEXT_PUBLIC_RIGG_RENTAL_API_URL
+
+      # Pulls the env vars just synced above (plus project/build settings)
+      # into .vercel/.env.production.local, which `vercel build` reads.
+      - name: Link Vercel project
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy
