@@ -1,0 +1,44 @@
+# Hygiene checks on pull requests into main, and pushes to feature branches.
+# Does not deploy. Same pattern as FRP-frontend's checks.yml.
+name: Checks
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "feature/**"
+  workflow_dispatch:
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Next.js 16 generates ambient types for typed routes (LayoutProps,
+      # PageProps, etc.) into .next/types — `next build`/`next dev` would
+      # produce them too, but typegen does it without a full build.
+      - name: Generate route types
+        run: npx next typegen
+
+      - name: Typecheck
+        run: npx tsc --noEmit
