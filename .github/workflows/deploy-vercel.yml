@@ -1,20 +1,29 @@
 # Deploy to Vercel (production) on push to main.
 #
-# One-time setup before this can run:
-#   1. `npx vercel link` locally once (or create the project in the Vercel
-#      dashboard) to get a Vercel project for this repo.
-#   2. Vercel dashboard → Account Settings → Tokens → create a token with
-#      access to this project, then add it as the GitHub secret VERCEL_TOKEN.
-#   3. Vercel dashboard → Project Settings → General → copy "Project ID" and
-#      the org's "Team ID" (or your personal account ID), then add them as
-#      the GitHub secrets VERCEL_PROJECT_ID and VERCEL_ORG_ID.
-#      (Running `npx vercel link` locally also writes both into
-#      .vercel/project.json, which is gitignored — read them from there.)
-#   4. Add any NEXT_PUBLIC_*/server env vars this app needs (Supabase URL/key,
-#      RESEND_API_KEY, SUPER_ADMIN_API_MODE, RIGG_RENTAL_API_URL, etc.) in the
-#      Vercel dashboard → Project Settings → Environment Variables — `vercel
-#      pull` below fetches whatever's configured there, nothing is duplicated
-#      as a GitHub secret.
+# One-time setup before this can run — add these as GitHub repo secrets
+# (Settings → Secrets and variables → Actions):
+#
+#   Vercel project/auth (required):
+#     VERCEL_TOKEN       — Vercel dashboard → Account Settings → Tokens
+#     VERCEL_ORG_ID      — from `npx vercel link` locally → .vercel/project.json,
+#     VERCEL_PROJECT_ID    or Vercel dashboard → Project Settings → General
+#
+#   App env vars (see .env.local.example for what each does):
+#     NEXT_PUBLIC_SUPABASE_URL          — required
+#     NEXT_PUBLIC_SUPABASE_ANON_KEY     — required
+#     NEXT_PUBLIC_APP_URL               — optional
+#     RESEND_API_KEY                    — optional (falls back to mailto)
+#     RESEND_FROM_EMAIL                 — optional
+#     SUPER_ADMIN_API_MODE              — mock | http | rigg-rental
+#     SUPER_ADMIN_API_URL               — only used when mode=http
+#     RIGG_RENTAL_API_URL               — only used when mode=rigg-rental
+#     RIGG_RENTAL_SUPERADMIN_EMAIL      — only used when mode=rigg-rental
+#     RIGG_RENTAL_SUPERADMIN_PASSWORD   — only used when mode=rigg-rental
+#
+# These are passed directly into `vercel build` below rather than configured
+# in the Vercel dashboard, so everything this deploy needs lives in one place
+# (GitHub secrets) and is visible in this file. The tradeoff: a `vercel
+# deploy` run from someone's laptop, outside this workflow, won't see them.
 name: Deploy to Vercel
 
 on:
@@ -47,13 +56,24 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # Fetches this project's env vars and build settings from the Vercel
-      # dashboard, so they're configured once there rather than duplicated
-      # as GitHub secrets.
-      - name: Pull Vercel environment
+      # Links this checkout to the Vercel project (writes .vercel/project.json)
+      # and fetches build settings — not app secrets, those come from GitHub
+      # below instead.
+      - name: Link Vercel project
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
       - name: Build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          SUPER_ADMIN_API_MODE: ${{ secrets.SUPER_ADMIN_API_MODE }}
+          SUPER_ADMIN_API_URL: ${{ secrets.SUPER_ADMIN_API_URL }}
+          RIGG_RENTAL_API_URL: ${{ secrets.RIGG_RENTAL_API_URL }}
+          RIGG_RENTAL_SUPERADMIN_EMAIL: ${{ secrets.RIGG_RENTAL_SUPERADMIN_EMAIL }}
+          RIGG_RENTAL_SUPERADMIN_PASSWORD: ${{ secrets.RIGG_RENTAL_SUPERADMIN_PASSWORD }}
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy
