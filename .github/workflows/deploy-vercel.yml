@@ -1,0 +1,60 @@
+# Deploy to Vercel (production) on push to main.
+#
+# One-time setup before this can run:
+#   1. `npx vercel link` locally once (or create the project in the Vercel
+#      dashboard) to get a Vercel project for this repo.
+#   2. Vercel dashboard → Account Settings → Tokens → create a token with
+#      access to this project, then add it as the GitHub secret VERCEL_TOKEN.
+#   3. Vercel dashboard → Project Settings → General → copy "Project ID" and
+#      the org's "Team ID" (or your personal account ID), then add them as
+#      the GitHub secrets VERCEL_PROJECT_ID and VERCEL_ORG_ID.
+#      (Running `npx vercel link` locally also writes both into
+#      .vercel/project.json, which is gitignored — read them from there.)
+#   4. Add any NEXT_PUBLIC_*/server env vars this app needs (Supabase URL/key,
+#      RESEND_API_KEY, SUPER_ADMIN_API_MODE, RIGG_RENTAL_API_URL, etc.) in the
+#      Vercel dashboard → Project Settings → Environment Variables — `vercel
+#      pull` below fetches whatever's configured there, nothing is duplicated
+#      as a GitHub secret.
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Fetches this project's env vars and build settings from the Vercel
+      # dashboard, so they're configured once there rather than duplicated
+      # as GitHub secrets.
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
