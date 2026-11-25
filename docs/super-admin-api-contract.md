@@ -1,15 +1,8 @@
 # Super Admin API contract
 
-The Super Admin panel (`/super-admin` in the Next.js app) is built against this API. Until it exists, the frontend uses in-memory sample data (`src/features/super-admin/api/mock/`) that follows these rules exactly.
+The Super Admin panel (`/super-admin` in the Next.js app) was originally designed against this full contract. In practice it's now wired to the real **Rigg Rental Spring Boot API** for Organizations and Privileges (see `src/features/super-admin/api/http/rigg-rental-api.ts`, configured via `RIGG_RENTAL_API_URL`) — that backend doesn't implement this exact contract shape, so the adapter translates between them. Everything else below (Dashboard, Parameters, Notifications, Profile/MFA) still falls back to in-memory sample data (`src/features/super-admin/api/mock/`), since no backend implements those yet.
 
-**To switch the frontend to the real API**, set:
-
-```
-SUPER_ADMIN_API_MODE=http
-SUPER_ADMIN_API_URL=https://<host>/api        # no trailing slash
-```
-
-The client is `src/features/super-admin/api/http/http-api.ts`. The TypeScript types in `src/features/super-admin/types.ts` are the source of truth for every JSON shape below.
+The TypeScript types in `src/features/super-admin/types.ts` are the source of truth for every JSON shape below; this doc remains useful as the target shape for whichever of these domains gets a real backend next.
 
 ## Conventions
 

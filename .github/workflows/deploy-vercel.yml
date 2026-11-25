@@ -14,8 +14,7 @@
 #     NEXT_PUBLIC_APP_URL               — optional
 #     RESEND_API_KEY                    — optional (falls back to mailto)
 #     RESEND_FROM_EMAIL                 — optional
-#     SUPER_ADMIN_API_MODE              — mock | rigg-rental (should be rigg-rental for a real deploy)
-#     RIGG_RENTAL_API_URL               — only used when mode=rigg-rental
+#     RIGG_RENTAL_API_URL               — required (the Super Admin panel's only backend)
 #
 # RIGG_RENTAL_SUPERADMIN_EMAIL/PASSWORD are deliberately not set here — the
 # rigg-rental adapter falls back to the backend's seeded default credentials
@@ -72,7 +71,6 @@ jobs:
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
-          SUPER_ADMIN_API_MODE: ${{ secrets.SUPER_ADMIN_API_MODE }}
           RIGG_RENTAL_API_URL: ${{ secrets.RIGG_RENTAL_API_URL }}
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
