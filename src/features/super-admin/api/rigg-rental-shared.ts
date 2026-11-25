@@ -8,9 +8,9 @@ import type {
 
 /**
  * Pure request/response shapes and mappers for the Rigg Rental backend,
- * shared between the server-side adapter (http/rigg-rental-api.ts) and the
- * browser-direct client (client/rigg-rental-browser.ts). No "server-only" —
- * nothing here touches fetch, tokens, or env vars.
+ * shared between the server-side adapters (http/*.ts) and the browser-direct
+ * client (client/browser-api.ts). No "server-only" — nothing here touches
+ * fetch, tokens, or env vars.
  */
 
 export type BackendOrganization = {
@@ -31,6 +31,42 @@ export type BackendOrganization = {
 export type BackendOrganizationAdmin = { name: string | null; email: string | null; phone: string | null };
 
 export type BackendProvisionResponse = { organization: BackendOrganization; adminUsername: string };
+
+/** GET /auth/me */
+export type BackendUser = {
+  id: number;
+  username: string | null;
+  displayName: string | null;
+  email: string | null;
+  mobileNumber: string | null;
+  organization: BackendOrganization | null;
+  roleCodes: string[] | null;
+  rolesPrivileges: string[] | null;
+  enabled: boolean | null;
+};
+
+/** Role code the backend seeds for the platform Super Admin. */
+export const SUPER_ADMIN_ROLE_CODE = "SUPER_ADMIN";
+
+/** A platform user (no organization) holding the Super Admin role. */
+export const isSuperAdmin = (user: BackendUser): boolean =>
+  !user.organization && (user.roleCodes ?? []).includes(SUPER_ADMIN_ROLE_CODE);
+
+/**
+ * GET/PUT /admin/parameters. Platform rows have `organizationId: null`. With
+ * `?organizationId=` the backend merges platform defaults (`inherited: true`,
+ * `id: null`) with the organization's own rows (`inherited: false`).
+ */
+export type BackendParameter = {
+  id: number | null;
+  paramName: string;
+  paramValue: string | null;
+  paramType: string | null;
+  description: string | null;
+  organizationId: number | null;
+  orgEditable: boolean | null;
+  inherited: boolean | null;
+};
 
 export type BackendPrivilege = {
   id: number;

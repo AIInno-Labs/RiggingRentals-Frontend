@@ -26,12 +26,14 @@ import type {
 /**
  * Everything the Super Admin panel needs from the backend.
  *
- * Two implementations exist:
- *  - `mock/`  in-memory sample data (used now)
- *  - `http/`  calls the Spring Boot API (switched on with SUPER_ADMIN_API_MODE=http)
+ * Implemented in `http/`, one file per area, against the Rigg Rental Spring
+ * Boot API. Methods the backend can't serve yet throw `notAvailable()` (see
+ * http/not-available.ts) and are marked `TODO(backend)` with the endpoint
+ * they're waiting for.
  *
- * The REST endpoint for each method is listed beside it and in
- * docs/super-admin-api-contract.md.
+ * The endpoints listed beside each method are the panel's original design
+ * (docs/super-admin-api-contract.md); the real backend paths differ and are
+ * documented in each http/ module.
  */
 export interface SuperAdminApi {
   /** GET /platform/dashboard */
@@ -99,7 +101,18 @@ export interface SuperAdminApi {
   disableMfa(): Promise<void>;
 }
 
-export type ApiErrorCode = "VALIDATION" | "CONFLICT" | "NOT_FOUND" | "FORBIDDEN" | "UNAVAILABLE" | "UNKNOWN";
+export type ApiErrorCode =
+  | "VALIDATION"
+  | "CONFLICT"
+  | "NOT_FOUND"
+  | "FORBIDDEN"
+  /** No valid Super Admin session: sign in again. */
+  | "UNAUTHENTICATED"
+  /** The backend can't be reached or is misconfigured. */
+  | "UNAVAILABLE"
+  /** The backend doesn't support this feature yet. */
+  | "NOT_AVAILABLE"
+  | "UNKNOWN";
 
 /** Error thrown by any API implementation; `message` is safe to show users. */
 export class ApiError extends Error {
@@ -112,3 +125,6 @@ export class ApiError extends Error {
     this.name = "ApiError";
   }
 }
+
+export const isApiError = (error: unknown, code: ApiErrorCode): error is ApiError =>
+  error instanceof ApiError && error.code === code;
