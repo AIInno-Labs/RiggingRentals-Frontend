@@ -14,8 +14,7 @@
 #     NEXT_PUBLIC_APP_URL               — optional
 #     RESEND_API_KEY                    — optional (falls back to mailto)
 #     RESEND_FROM_EMAIL                 — optional
-#     SUPER_ADMIN_API_MODE              — mock | http | rigg-rental
-#     SUPER_ADMIN_API_URL               — only used when mode=http
+#     SUPER_ADMIN_API_MODE              — mock | rigg-rental (should be rigg-rental for a real deploy)
 #     RIGG_RENTAL_API_URL               — only used when mode=rigg-rental
 #     RIGG_RENTAL_SUPERADMIN_EMAIL      — only used when mode=rigg-rental
 #     RIGG_RENTAL_SUPERADMIN_PASSWORD   — only used when mode=rigg-rental
@@ -70,7 +69,6 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
           SUPER_ADMIN_API_MODE: ${{ secrets.SUPER_ADMIN_API_MODE }}
-          SUPER_ADMIN_API_URL: ${{ secrets.SUPER_ADMIN_API_URL }}
           RIGG_RENTAL_API_URL: ${{ secrets.RIGG_RENTAL_API_URL }}
           RIGG_RENTAL_SUPERADMIN_EMAIL: ${{ secrets.RIGG_RENTAL_SUPERADMIN_EMAIL }}
           RIGG_RENTAL_SUPERADMIN_PASSWORD: ${{ secrets.RIGG_RENTAL_SUPERADMIN_PASSWORD }}
